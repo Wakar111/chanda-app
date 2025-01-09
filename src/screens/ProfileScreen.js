@@ -1,17 +1,45 @@
 import React, { useRef } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Avatar, Title, Text, Surface } from 'react-native-paper';
-import { useFocusEffect } from '@react-navigation/native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Avatar, Title, Text, Surface, Button } from 'react-native-paper';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { mitglieder } from '../data/mitglieder';
+import { auth } from '../config/firebase';
+import { signOut } from 'firebase/auth';
 
 const ProfileScreen = () => {
   const scrollViewRef = useRef(null);
+  const navigation = useNavigation();
 
   useFocusEffect(
     React.useCallback(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }, [])
   );
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Logout",
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              navigation.replace('Login');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          },
+          style: 'destructive'
+        }
+      ]
+    );
+  };
 
   return (
     <ScrollView 
@@ -56,6 +84,19 @@ const ProfileScreen = () => {
           <Text style={styles.label}>Email:</Text>
           <Text style={styles.value}>{mitglieder?.email || 'N/A'}</Text>
         </View>
+      </Surface>
+
+      <Surface style={styles.logoutContainer}>
+        <Button
+          mode="contained"
+          onPress={handleLogout}
+          style={styles.logoutButton}
+          contentStyle={styles.logoutButtonContent}
+          labelStyle={styles.logoutButtonLabel}
+          color="#ff3b30"
+        >
+          Logout
+        </Button>
       </Surface>
     </ScrollView>
   );
@@ -114,9 +155,26 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
     flex: 2,
     textAlign: 'right',
+  },
+  logoutContainer: {
+    marginHorizontal: 10,
+    marginBottom: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    elevation: 2,
+    padding: 15,
+  },
+  logoutButton: {
+    borderRadius: 8,
+  },
+  logoutButtonContent: {
+    height: 48,
+  },
+  logoutButtonLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
