@@ -1,5 +1,5 @@
 node_modules
 package-lock.json
-firebase.json
+firebase.js
 google-services.json
 .DS_Store
